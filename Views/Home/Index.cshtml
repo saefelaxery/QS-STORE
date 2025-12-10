@@ -1,0 +1,152 @@
+﻿@model List<LaLaStore.Models.Product>
+@{
+    ViewData["Title"] = "Home";
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+}
+
+<div class="container-fluid px-0">
+    <!-- Hero Section -->
+    <section class="bg-gradient-primary text-white text-center py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container py-5">
+            <h1 class="display-4 fw-bold mb-4">Fashion for Everyone</h1>
+            <p class="lead mb-4">Discover the latest trends in clothing and accessories</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg">
+                View Catalog <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Categorías -->
+        <section class="mb-5">
+            <h2 class="fw-bold mb-4">Categories</h2>
+            <div class="row g-3">
+                @foreach (var category in categories)
+                {
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="Products" asp-action="Index" asp-route-categoria="@category" 
+                           class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm hover-shadow transition overflow-hidden">
+                                @if (category.ToLower() == "men")
+                                {
+                                    <div class="position-relative" style="height: 200px;">
+                                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" 
+                                             class="w-100 h-100" 
+                                             style="object-fit: cover;" 
+                                             alt="Men's Fashion">
+                                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-3 text-center">
+                                            <h5 class="mb-0 fw-bold">MEN</h5>
+                                        </div>
+                                    </div>
+                                }
+                                else if (category.ToLower() == "women")
+                                {
+                                    <div class="position-relative" style="height: 200px;">
+                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop" 
+                                             class="w-100 h-100" 
+                                             style="object-fit: cover;" 
+                                             alt="Women's Fashion">
+                                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-3 text-center">
+                                            <h5 class="mb-0 fw-bold">WOMEN</h5>
+                                        </div>
+                                    </div>
+                                }
+                                else if (category.ToLower() == "kids")
+                                {
+                                    <div class="position-relative" style="height: 200px;">
+                                        <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=400&h=400&fit=crop"
+                                             class="w-100 h-100"
+                                             style="object-fit: cover;"
+                                             alt="Kids Fashion">
+                                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-3 text-center">
+                                            <h5 class="mb-0 fw-bold">KIDS</h5>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="card-body d-flex align-items-center justify-content-center bg-gradient text-white rounded" 
+                                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 150px;">
+                                        <h5 class="mb-0">@category</h5>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- Productos Destacados -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Featured Products</h2>
+                <a asp-controller="Products" asp-action="Index" class="text-primary text-decoration-none">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="row g-4">
+                @foreach (var product in Model)
+                {
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none">
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 250px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title text-dark">@product.Name</h5>
+                                    <p class="card-text text-muted small">@(product.Description.Length > 60 ? product.Description.Substring(0, 60) + "..." : product.Description)</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 text-primary mb-0">@product.Price.ToString("N0") EGP</span>
+                                        @if (product.Rating.HasValue)
+                                        {
+                                            <small class="text-muted">
+                                                <i class="bi bi-star-fill text-warning"></i> @product.Rating.Value.ToString("F1")
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- Características -->
+        <section class="bg-light rounded-3 p-5 mb-5">
+            <div class="row text-center">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="mb-3">
+                        <i class="bi bi-star-fill text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">Premium Quality</h4>
+                    <p class="text-muted">Products selected with the highest quality standards</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="mb-3">
+                        <i class="bi bi-truck text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">Fast Shipping</h4>
+                    <p class="text-muted">Fast and secure delivery nationwide</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <i class="bi bi-arrow-repeat text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">Easy Returns</h4>
+                    <p class="text-muted">Hassle-free return policy</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    }
+</style>

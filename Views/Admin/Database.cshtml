@@ -1,0 +1,79 @@
+@model List<LaLaStore.Models.Product>
+@{
+    ViewData["Title"] = "Database Products";
+}
+
+<div class="container my-5">
+    <h1 class="mb-4">Database Products - قاعدة البيانات</h1>
+    <p class="text-muted mb-4">عدد المنتجات: <strong>@Model.Count</strong></p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Sizes</th>
+                    <th>Colors</th>
+                    <th>In Stock</th>
+                    <th>Rating</th>
+                    <th>Image URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.Id</td>
+                        <td>@product.Name</td>
+                        <td>@product.Category</td>
+                        <td>@product.Price.ToString("N0") EGP</td>
+                        <td>@string.Join(", ", product.Sizes)</td>
+                        <td>@string.Join(", ", product.Colors)</td>
+                        <td>
+                            @if (product.InStock)
+                            {
+                                <span class="badge bg-success">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">No</span>
+                            }
+                        </td>
+                        <td>@(product.Rating?.ToString("F1") ?? "N/A")</td>
+                        <td>
+                            <a href="@product.ImageUrl" target="_blank" class="text-decoration-none">
+                                <small>View Image</small>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h3>Raw JSON Data (Sizes & Colors)</h3>
+        <div class="card">
+            <div class="card-body">
+                @foreach (var product in Model)
+                {
+                    <div class="mb-3">
+                        <strong>@product.Name (ID: @product.Id):</strong>
+                        <pre class="bg-light p-2 rounded"><code>Sizes JSON: @product.SizesJson
+Colors JSON: @product.ColorsJson</code></pre>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
+
+
+

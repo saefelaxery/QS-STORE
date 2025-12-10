@@ -1,0 +1,237 @@
+@model List<LaLaStore.Models.Order>
+@{
+    ViewData["Title"] = "Orders - الطلبات";
+}
+
+<div class="container my-5">
+    <h1 class="mb-4">Orders - الطلبات</h1>
+    <p class="text-muted mb-4">عدد الطلبات: <strong>@Model.Count</strong></p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Count > 0)
+    {
+        <div class="mb-3">
+            <form asp-action="DeleteAllOrders" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> حذف جميع الطلبات
+                </button>
+            </form>
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> لا توجد طلبات حتى الآن
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Payment</th>
+                        <th>Total Price</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                        <th>Items Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td><strong>#@order.Id</strong></td>
+                            <td>@order.CustomerName</td>
+                            <td>@order.Email</td>
+                            <td>@order.Phone</td>
+                            <td>@order.Address</td>
+                            <td>@order.PaymentMethod</td>
+                            <td><strong>@order.TotalPrice.ToString("N0") EGP</strong></td>
+                            <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                @if (order.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning">@order.Status</span>
+                                }
+                                else if (order.Status == "Completed")
+                                {
+                                    <span class="badge bg-success">@order.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@order.Status</span>
+                                }
+                            </td>
+                            <td>@order.OrderItems.Count</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderModal@order.Id">
+                                    <i class="bi bi-eye"></i> View Details
+                                </button>
+                                <form asp-action="DeleteOrder" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@order.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i> حذف
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modals for Order Details -->
+        @foreach (var order in Model)
+        {
+            <div class="modal fade" id="orderModal@order.Id" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Order #@order.Id - تفاصيل الطلب</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Customer Name:</strong></div>
+                                <div class="col-sm-8">@order.CustomerName</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Email:</strong></div>
+                                <div class="col-sm-8">@order.Email</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Phone:</strong></div>
+                                <div class="col-sm-8">@order.Phone</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Address:</strong></div>
+                                <div class="col-sm-8">@order.Address</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Order Date:</strong></div>
+                                <div class="col-sm-8">@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Payment Method:</strong></div>
+                                <div class="col-sm-8">
+                                    @if (order.PaymentMethod == "Visa")
+                                    {
+                                        <span class="badge bg-primary">Visa / Credit Card</span>
+                                        @if (!string.IsNullOrEmpty(order.CardLast4))
+                                        {
+                                            <div class="mt-2">
+                                                <strong>Card Number:</strong> ****@order.CardLast4
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(order.CardExpiry))
+                                        {
+                                            <div class="mt-1">
+                                                <strong>Expiry:</strong> @order.CardExpiry
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(order.CardHolderName))
+                                        {
+                                            <div class="mt-1">
+                                                <strong>Card Holder:</strong> @order.CardHolderName
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Cash on Delivery</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4"><strong>Status:</strong></div>
+                                <div class="col-sm-8">
+                                    @if (order.Status == "Pending")
+                                    {
+                                        <span class="badge bg-warning">@order.Status</span>
+                                    }
+                                    else if (order.Status == "Completed")
+                                    {
+                                        <span class="badge bg-success">@order.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@order.Status</span>
+                                    }
+                                </div>
+                            </div>
+                            <hr>
+                            <h6>Order Items - المنتجات:</h6>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Size</th>
+                                        <th>Color</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in order.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>@item.ProductName</td>
+                                            <td>@item.Size</td>
+                                            <td>@item.Color</td>
+                                            <td>@item.Quantity</td>
+                                            <td>@item.Price.ToString("N0") EGP</td>
+                                            <td>@item.Subtotal.ToString("N0") EGP</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-end">Total:</th>
+                                        <th>@order.TotalPrice.ToString("N0") EGP</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="mt-4">
+        <a asp-action="Database" class="btn btn-outline-primary">View Products Database</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
+
+
+

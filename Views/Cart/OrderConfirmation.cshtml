@@ -1,0 +1,114 @@
+@model LaLaStore.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+        <h1 class="mt-3">Order Confirmed! - تم تأكيد الطلب</h1>
+        <p class="text-muted">Thank you for your purchase! - شكراً لشرائك</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Details - تفاصيل الطلب</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Order ID:</strong></div>
+                        <div class="col-sm-8">#@Model.Id</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Customer Name:</strong></div>
+                        <div class="col-sm-8">@Model.CustomerName</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Email:</strong></div>
+                        <div class="col-sm-8">@Model.Email</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Phone:</strong></div>
+                        <div class="col-sm-8">@Model.Phone</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Address:</strong></div>
+                        <div class="col-sm-8">@Model.Address</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Payment Method:</strong></div>
+                        <div class="col-sm-8">
+                            @Model.PaymentMethod
+                            @if (Model.PaymentMethod == "Visa" && !string.IsNullOrEmpty(Model.CardLast4))
+                            {
+                                <span class="text-muted ms-2">(Visa ****@Model.CardLast4)</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Order Date:</strong></div>
+                        <div class="col-sm-8">@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Status:</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-warning">@Model.Status</span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="mb-3">Order Items - المنتجات:</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Size</th>
+                                <th>Color</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.Size</td>
+                                    <td>@item.Color</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.Price.ToString("N0") EGP</td>
+                                    <td>@item.Subtotal.ToString("N0") EGP</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="text-end">Total:</th>
+                                <th>@Model.TotalPrice.ToString("N0") EGP</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="mt-4 text-center">
+                        <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                            Continue Shopping - متابعة التسوق
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

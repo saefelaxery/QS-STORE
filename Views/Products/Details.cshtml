@@ -1,0 +1,153 @@
+@model LaLaStore.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container my-5">
+    <a asp-action="Index" class="text-decoration-none mb-3 d-inline-block">
+        <i class="bi bi-arrow-left"></i> Back to Products
+    </a>
+
+    <div class="row">
+        <!-- Imagen -->
+        <div class="col-md-6 mb-4">
+            <img src="@(Model.ImageUrl ?? "/images/placeholder.jpg")" 
+                 class="img-fluid rounded shadow" 
+                 alt="@Model.Name"
+                 style="min-height: 400px; max-height: 600px; object-fit: cover; background-color: #f0f0f0; width: 100%; display: block;"
+                 loading="lazy">
+        </div>
+
+        <!-- Información -->
+        <div class="col-md-6">
+            <h1 class="fw-bold mb-3">@Model.Name</h1>
+            
+            @if (Model.Rating.HasValue)
+            {
+                <div class="mb-3">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <i class="bi bi-star-fill @(i < Math.Floor(Model.Rating.Value) ? "text-warning" : "text-secondary")"></i>
+                    }
+                    <span class="ms-2 text-muted">(@Model.Rating.Value.ToString("F1"))</span>
+                </div>
+            }
+
+            <h2 class="text-primary mb-4">@Model.Price.ToString("N0") EGP</h2>
+            <p class="lead mb-4">@Model.Description</p>
+
+            <!-- Tallas -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Size</label>
+                <div class="btn-group" role="group" id="sizeGroup">
+                    @foreach (var size in Model.Sizes)
+                    {
+                        <input type="radio" class="btn-check" name="size" id="size_@size" value="@size" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="size_@size">@size</label>
+                    }
+                </div>
+            </div>
+
+            <!-- Colores -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Color</label>
+                <div class="btn-group" role="group" id="colorGroup">
+                    @foreach (var color in Model.Colors)
+                    {
+                        <input type="radio" class="btn-check" name="color" id="color_@color" value="@color" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="color_@color">@color</label>
+                    }
+                </div>
+            </div>
+
+            <!-- Botón Agregar al Carrito -->
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mb-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id">
+                <input type="hidden" name="size" id="selectedSize">
+                <input type="hidden" name="color" id="selectedColor">
+                <button type="submit" class="btn btn-primary btn-lg w-100" id="addToCartBtn" disabled>
+                    <i class="bi bi-cart-plus"></i> <span id="btnText">Select size and color</span>
+                </button>
+            </form>
+
+            @if (!Model.InStock)
+            {
+                <div class="alert alert-danger">This product is out of stock</div>
+            }
+
+            <!-- Información adicional -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Product Information</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Category:</strong> <span>@(Model.Category == "men" ? "Men" : Model.Category == "women" ? "Women" : Model.Category)</span></li>
+                        <li class="mb-2"><strong>Availability:</strong> 
+                            <span class="@(Model.InStock ? "text-success" : "text-danger")">
+                                @(Model.InStock ? "In Stock" : "Out of Stock")
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const sizeInputs = document.querySelectorAll('input[name="size"]');
+        const colorInputs = document.querySelectorAll('input[name="color"]');
+        const selectedSizeInput = document.getElementById('selectedSize');
+        const selectedColorInput = document.getElementById('selectedColor');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        const btnText = document.getElementById('btnText');
+        
+        function updateAddToCartButton() {
+            const sizeSelected = Array.from(sizeInputs).some(input => input.checked);
+            const colorSelected = Array.from(colorInputs).some(input => input.checked);
+            
+            if (sizeSelected && colorSelected) {
+                addToCartBtn.disabled = false;
+                btnText.textContent = 'Add to Cart';
+            } else {
+                addToCartBtn.disabled = true;
+                if (!sizeSelected && !colorSelected) {
+                    btnText.textContent = 'Select size and color';
+                } else if (!sizeSelected) {
+                    btnText.textContent = 'Select a size';
+                } else {
+                    btnText.textContent = 'Select a color';
+                }
+            }
+        }
+
+        sizeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedSizeInput.value = this.value;
+                }
+                updateAddToCartButton();
+            });
+        });
+
+        colorInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedColorInput.value = this.value;
+                }
+                updateAddToCartButton();
+            });
+        });
+
+        // Prevenir envío si no hay selección
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!selectedSizeInput.value || !selectedColorInput.value) {
+                e.preventDefault();
+                alert('Please select a size and color');
+            }
+        });
+    </script>
+}
+
